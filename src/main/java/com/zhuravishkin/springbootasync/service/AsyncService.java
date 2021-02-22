@@ -28,11 +28,6 @@ public class AsyncService {
         try {
             user = restTemplate.getForObject("http://localhost:8080/template/get", User.class);
             Thread.sleep(10000);
-        } catch (InterruptedException e) {
-            log.error(e.getMessage(), e);
-            Thread.currentThread().interrupt();
-        }
-        try {
             log.warn(userCompletableFuture.get().toString());
         } catch (InterruptedException | ExecutionException e) {
             log.error(e.getMessage(), e);
