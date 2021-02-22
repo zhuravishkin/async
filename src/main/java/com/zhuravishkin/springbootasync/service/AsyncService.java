@@ -11,7 +11,6 @@ import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 
 @Slf4j
-@Async
 @Service
 public class AsyncService {
     private final RestTemplate restTemplate;
@@ -23,6 +22,7 @@ public class AsyncService {
                 .build();
     }
 
+    @Async("threadPoolTaskExecutor")
     public CompletableFuture<User> getAsync() {
         log.info("Async start");
         User user = null;

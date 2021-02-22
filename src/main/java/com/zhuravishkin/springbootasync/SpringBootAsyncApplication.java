@@ -15,13 +15,24 @@ public class SpringBootAsyncApplication {
         SpringApplication.run(SpringBootAsyncApplication.class, args);
     }
 
-    @Bean
-    public Executor taskExecutor() {
+    @Bean(name = "threadPoolTaskExecutor")
+    public Executor threadPoolTaskExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(2);
         executor.setMaxPoolSize(2);
-        executor.setQueueCapacity(500);
-        executor.setThreadNamePrefix("GithubLookup-");
+        executor.setQueueCapacity(100);
+        executor.setThreadNamePrefix("FixedLookup-");
+        executor.initialize();
+        return executor;
+    }
+
+    @Bean(name = "cachedThreadPoolTaskExecutor")
+    public Executor cachedThreadPoolTaskExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(2);
+        executor.setMaxPoolSize(2);
+        executor.setQueueCapacity(0);
+        executor.setThreadNamePrefix("CachedLookup-");
         executor.initialize();
         return executor;
     }
