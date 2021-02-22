@@ -23,7 +23,7 @@ public class AsyncService {
                 .build();
     }
 
-    @Async
+    @Async("threadPoolTaskExecutor")
     public CompletableFuture<User> getAsync() {
         log.info("async fixed start");
         User user = null;
