@@ -9,6 +9,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 @Slf4j
 @Service
@@ -22,10 +23,11 @@ public class AsyncService {
                 .build();
     }
 
-    @Async("threadPoolTaskExecutor")
+    @Async
     public CompletableFuture<User> getAsync() {
-        log.info("Async start");
+        log.info("async fixed start");
         User user = null;
+        CompletableFuture<User> userCompletableFuture = getCachedAsync();
         try {
             user = restTemplate.getForObject("http://localhost:8080/template/get", User.class);
             Thread.sleep(10000);
@@ -33,7 +35,28 @@ public class AsyncService {
             log.error(e.getMessage(), e);
             Thread.currentThread().interrupt();
         }
-        log.info("Async end");
+        try {
+            log.warn(userCompletableFuture.get().toString());
+        } catch (InterruptedException | ExecutionException e) {
+            log.error(e.getMessage(), e);
+            Thread.currentThread().interrupt();
+        }
+        log.info("async fixed end");
+        return CompletableFuture.completedFuture(user);
+    }
+
+    @Async("cachedThreadPoolTaskExecutor")
+    public CompletableFuture<User> getCachedAsync() {
+        log.info("async cached start");
+        User user = null;
+        try {
+            user = restTemplate.getForObject("http://localhost:8080/template/get", User.class);
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            log.error(e.getMessage(), e);
+            Thread.currentThread().interrupt();
+        }
+        log.info("async cached end");
         return CompletableFuture.completedFuture(user);
     }
 }
