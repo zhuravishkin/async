@@ -1,6 +1,5 @@
 package com.zhuravishkin.springbootasync;
 
-import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Tags;
 import io.micrometer.spring.async.ThreadPoolTaskExecutorMetrics;
 import org.springframework.boot.SpringApplication;
@@ -8,8 +7,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-
-import java.util.concurrent.Executor;
 
 @EnableAsync
 @SpringBootApplication
@@ -19,11 +16,8 @@ public class SpringBootAsyncApplication {
     }
 
     @Bean(name = "threadPoolTaskExecutor")
-    public Executor threadPoolTaskExecutor(final MeterRegistry meterRegistry) {
-        ThreadPoolTaskExecutor executor = ThreadPoolTaskExecutorMetrics.monitor(
-                meterRegistry,
-                "fixed_thread_pool_task_executor",
-                Tags.of("key", "value"));
+    public ThreadPoolTaskExecutor threadPoolTaskExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(2);
         executor.setMaxPoolSize(2);
         executor.setQueueCapacity(100);
@@ -33,17 +27,30 @@ public class SpringBootAsyncApplication {
     }
 
     @Bean(name = "cachedThreadPoolTaskExecutor")
-    public Executor cachedThreadPoolTaskExecutor(final MeterRegistry meterRegistry) {
-        ThreadPoolTaskExecutor executor = ThreadPoolTaskExecutorMetrics.monitor(
-                meterRegistry,
-                "cached_thread_pool_task_executor",
-                Tags.of("key", "value"));
+    public ThreadPoolTaskExecutor cachedThreadPoolTaskExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(2);
         executor.setMaxPoolSize(2);
         executor.setQueueCapacity(0);
         executor.setThreadNamePrefix("CachedLookup-");
         executor.initialize();
         return executor;
+    }
+
+    @Bean
+    public ThreadPoolTaskExecutorMetrics executorService() {
+        return new ThreadPoolTaskExecutorMetrics(
+                threadPoolTaskExecutor(),
+                "fixed_thread_pool_task_executor",
+                Tags.of("key", "value"));
+    }
+
+    @Bean
+    public ThreadPoolTaskExecutorMetrics cachedExecutorService() {
+        return new ThreadPoolTaskExecutorMetrics(
+                cachedThreadPoolTaskExecutor(),
+                "cached_thread_pool_task_executor",
+                Tags.of("key", "value"));
     }
 
 }
