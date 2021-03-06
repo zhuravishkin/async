@@ -45,7 +45,7 @@ public class SpringBootAsyncApplication {
         return ExecutorServiceMetrics.monitor(
                 meterRegistry,
                 threadPoolTaskExecutor(),
-                "threadPoolTaskExecutor",
+                "fixed_thread_pool_task_executor",
                 Tags.of("key", "value"));
     }
 
@@ -54,7 +54,7 @@ public class SpringBootAsyncApplication {
         return ExecutorServiceMetrics.monitor(
                 meterRegistry,
                 cachedThreadPoolTaskExecutor(),
-                "cachedThreadPoolTaskExecutor",
+                "cached_thread_pool_task_executor",
                 Tags.of("key", "value"));
     }
 }
