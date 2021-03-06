@@ -1,5 +1,8 @@
 package com.zhuravishkin.springbootasync;
 
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Tags;
+import io.micrometer.core.instrument.binder.jvm.ExecutorServiceMetrics;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -8,8 +11,8 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.util.concurrent.Executor;
 
-@SpringBootApplication
 @EnableAsync
+@SpringBootApplication
 public class SpringBootAsyncApplication {
     public static void main(String[] args) {
         SpringApplication.run(SpringBootAsyncApplication.class, args);
@@ -35,5 +38,23 @@ public class SpringBootAsyncApplication {
         executor.setThreadNamePrefix("CachedLookup-");
         executor.initialize();
         return executor;
+    }
+
+    @Bean
+    public Executor executorService(final MeterRegistry meterRegistry) {
+        return ExecutorServiceMetrics.monitor(
+                meterRegistry,
+                threadPoolTaskExecutor(),
+                "threadPoolTaskExecutor",
+                Tags.of("key", "value"));
+    }
+
+    @Bean
+    public Executor cachedExecutorService(final MeterRegistry meterRegistry) {
+        return ExecutorServiceMetrics.monitor(
+                meterRegistry,
+                cachedThreadPoolTaskExecutor(),
+                "cachedThreadPoolTaskExecutor",
+                Tags.of("key", "value"));
     }
 }
