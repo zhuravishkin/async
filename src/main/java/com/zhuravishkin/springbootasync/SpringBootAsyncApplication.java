@@ -2,7 +2,7 @@ package com.zhuravishkin.springbootasync;
 
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Tags;
-import io.micrometer.core.instrument.binder.jvm.ExecutorServiceMetrics;
+import io.micrometer.spring.async.ThreadPoolTaskExecutorMetrics;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -19,8 +19,11 @@ public class SpringBootAsyncApplication {
     }
 
     @Bean(name = "threadPoolTaskExecutor")
-    public Executor threadPoolTaskExecutor() {
-        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+    public Executor threadPoolTaskExecutor(final MeterRegistry meterRegistry) {
+        ThreadPoolTaskExecutor executor = ThreadPoolTaskExecutorMetrics.monitor(
+                meterRegistry,
+                "fixed_thread_pool_task_executor",
+                Tags.of("key", "value"));
         executor.setCorePoolSize(2);
         executor.setMaxPoolSize(2);
         executor.setQueueCapacity(100);
@@ -30,8 +33,11 @@ public class SpringBootAsyncApplication {
     }
 
     @Bean(name = "cachedThreadPoolTaskExecutor")
-    public Executor cachedThreadPoolTaskExecutor() {
-        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+    public Executor cachedThreadPoolTaskExecutor(final MeterRegistry meterRegistry) {
+        ThreadPoolTaskExecutor executor = ThreadPoolTaskExecutorMetrics.monitor(
+                meterRegistry,
+                "cached_thread_pool_task_executor",
+                Tags.of("key", "value"));
         executor.setCorePoolSize(2);
         executor.setMaxPoolSize(2);
         executor.setQueueCapacity(0);
@@ -40,21 +46,4 @@ public class SpringBootAsyncApplication {
         return executor;
     }
 
-    @Bean
-    public Executor executorService(final MeterRegistry meterRegistry) {
-        return ExecutorServiceMetrics.monitor(
-                meterRegistry,
-                threadPoolTaskExecutor(),
-                "fixed_thread_pool_task_executor",
-                Tags.of("key", "value"));
-    }
-
-    @Bean
-    public Executor cachedExecutorService(final MeterRegistry meterRegistry) {
-        return ExecutorServiceMetrics.monitor(
-                meterRegistry,
-                cachedThreadPoolTaskExecutor(),
-                "cached_thread_pool_task_executor",
-                Tags.of("key", "value"));
-    }
 }
