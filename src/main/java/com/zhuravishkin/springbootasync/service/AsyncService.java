@@ -26,14 +26,15 @@ public class AsyncService {
         User user = null;
         CompletableFuture<User> userCompletableFuture = asyncCachedService.getCachedAsync();
         try {
-            user = restTemplate.getForObject("http://localhost:8080/template/get", User.class);
-            Thread.sleep(10000);
+            user = restTemplate.getForObject("http://localhost:8080/server/get", User.class);
+            Thread.sleep(5_000);
             log.warn(userCompletableFuture.get().toString());
         } catch (InterruptedException | ExecutionException e) {
             log.error(e.getMessage(), e);
             Thread.currentThread().interrupt();
         }
         log.info("async fixed end");
+
         return CompletableFuture.completedFuture(user);
     }
 }

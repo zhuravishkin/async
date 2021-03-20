@@ -22,13 +22,14 @@ public class AsyncCachedService {
         log.info("async cached start");
         User user = null;
         try {
-            user = restTemplate.getForObject("http://localhost:8080/template/get", User.class);
-            Thread.sleep(5000);
+            user = restTemplate.getForObject("http://localhost:8080/server/get", User.class);
+            Thread.sleep(1_000);
         } catch (InterruptedException e) {
             log.error(e.getMessage(), e);
             Thread.currentThread().interrupt();
         }
         log.info("async cached end");
+
         return CompletableFuture.completedFuture(user);
     }
 }
